@@ -12,10 +12,15 @@ Unfortunately it's not possible to easily switch between kernel versions on Ubun
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-./process.py [--workers N]
+./process.py [--workers N] [--snap SNAP_NAME] [--output OUTPUT_FILE] [--verbose]
 ```
 
-Where `N` is the number of workers to use. Defaults to the number of cores on the machine.
+All parameters are optional.
+
+- `N` is the number of workers to use. Defaults to the number of cores on the machine.
+- `SNAP_NAME` is the name of the snap to download and inspect. Defaults to `pc-kernel`.
+- `OUTPUT_FILE` is the file to save the results to. Defaults to `results.csv`.
+- `VERBOSE` is a flag to enable verbose logging.
 
 ## Results
 
