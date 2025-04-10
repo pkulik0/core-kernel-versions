@@ -2,6 +2,7 @@
 import subprocess
 import re
 import csv
+import logging
 import os
 import argparse
 import tempfile
@@ -32,8 +33,8 @@ def process_revision(snap_name: str, revision: int) -> Tuple[str, str]:
     """
     Downloads the given revision of the snap and returns its kernel version and architecture.
     """
-    print(f"Getting revision {revision}")
     with tempfile.TemporaryDirectory() as temp_dir:
+        logging.debug(f"Getting revision {revision}")
         subprocess.run(
             ["snap", "download", snap_name, "--revision", str(revision)],
             cwd=temp_dir,
@@ -41,6 +42,7 @@ def process_revision(snap_name: str, revision: int) -> Tuple[str, str]:
             check=True,
         )
 
+        logging.debug(f"Extracting meta/snap.yaml from {snap_name}_{revision}.snap")
         subprocess.run(
             [
                 "unsquashfs",
@@ -58,39 +60,42 @@ def process_revision(snap_name: str, revision: int) -> Tuple[str, str]:
 
     version = snap_yaml["version"]
     architecture = snap_yaml["architecture"][0]  # Each kernel has only one architecture
-    print(f"Revision {revision} is version {version} for {architecture}")
+    logging.debug(f"Revision {revision} is version {version} for {architecture}")
     return version, architecture
 
 
 def main():
+    logging.basicConfig(level=logging.INFO)
     parser = argparse.ArgumentParser()
     parser.add_argument("--workers", type=int, default=os.cpu_count())
     parser.add_argument("--snap", type=str, default="pc-kernel")
     args = parser.parse_args()
 
     current_revision = get_current_revision(args.snap)
-    print(f"Current revision: {current_revision}")
+    logging.info(f"Current revision: {current_revision}")
 
     revisions = list(range(current_revision, 0, -1))
-    print(f"Processing {len(revisions)} revisions with {args.workers} workers")
+    logging.info(f"Processing {len(revisions)} revisions with {args.workers} workers")
 
     results = {}
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as executor:
-        futures = {executor.submit(process_revision, rev): rev for rev in revisions}
+        futures = {
+            executor.submit(process_revision, args.snap, rev): rev for rev in revisions
+        }
         for future in concurrent.futures.as_completed(futures):
+            rev = futures[future]
             try:
                 version, architecture = future.result()
-                rev = futures[future]
                 results[rev] = (version, architecture)
             except Exception as e:
-                print(f"Error processing revision {rev}: {e}")
+                logging.error(f"Error processing revision {rev}: {e}")
 
     with open("results.csv", "w") as f:
         writer = csv.writer(f)
         writer.writerow(["revision", "version", "architecture"])
         for rev, (version, architecture) in sorted(results.items()):
             writer.writerow([rev, version, architecture])
-    print("Done! Results saved to results.csv")
+    logging.info("Done! Results saved to results.csv")
 
 
 if __name__ == "__main__":
