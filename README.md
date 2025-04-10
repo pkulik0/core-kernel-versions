@@ -1,4 +1,4 @@
-# core-kernel-versions
+# ubuntu-core-kernel-versions
 
 Find the version and architecture of all revisions of the Ubuntu Core kernel snap.
 
@@ -19,7 +19,7 @@ Where `N` is the number of workers to use. Defaults to the number of cores on th
 
 ## Results
 
-The results are saved to `results.csv`. You can find a copy of my results in the releases section.
+The results are saved to `results.csv`. You can find the artifacts of the weekly workflow runs in the [Releases](https://github.com/pkulik0/ubuntu-core-kernel-versions/releases) section.
 
 ## License
 
