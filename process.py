@@ -31,7 +31,7 @@ def get_current_revision() -> int:
 
 def process_revision(revision: int) -> Tuple[str, str]:
     """
-    Downloads the given revision of the snap and returns its kernel version.
+    Downloads the given revision of the snap and returns its kernel version and architecture.
     """
     with tempfile.TemporaryDirectory() as temp_dir:
         print(f"Getting revision {revision}")
@@ -91,7 +91,6 @@ def main():
         writer.writerow(["revision", "version", "architecture"])
         for rev, (version, architecture) in sorted(results.items()):
             writer.writerow([rev, version, architecture])
-
     print("Done! Results saved to results.csv")
 
 
