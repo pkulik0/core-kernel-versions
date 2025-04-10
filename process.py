@@ -34,7 +34,7 @@ def process_revision(snap_name: str, revision: int) -> Tuple[str, str]:
     """
     Downloads the given revision of the snap and returns its kernel version and architecture.
     """
-    logging.info(f"Processing revision {revision}")
+    logging.debug(f"Processing revision {revision}")
     with tempfile.TemporaryDirectory() as temp_dir:
         logging.debug(f"Getting revision {revision}")
         subprocess.run(
@@ -80,7 +80,7 @@ def main():
     )
 
     current_revision = get_current_revision(args.snap)
-    logging.info(f"Current revision: {current_revision}")
+    logging.debug(f"Current revision: {current_revision}")
 
     revisions = list(range(current_revision, 0, -1))
     logging.info(f"Processing {len(revisions)} revisions with {args.workers} workers")
@@ -98,12 +98,13 @@ def main():
             except Exception as e:
                 logging.error(f"Error processing revision {rev}: {e}")
 
+    logging.debug(f"Saving results to {args.output}")
     with open(args.output, "w") as f:
         writer = csv.writer(f)
         writer.writerow(["revision", "version", "architecture"])
         for rev, (version, architecture) in sorted(results.items()):
             writer.writerow([rev, version, architecture])
-    logging.info(f"Done! Results saved to {args.output}")
+    logging.info(f"Done.")
 
 
 if __name__ == "__main__":
