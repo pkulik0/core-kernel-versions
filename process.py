@@ -74,7 +74,10 @@ def main():
     parser.add_argument("--output", type=str, default="results.csv")
     parser.add_argument("--verbose", type=bool, default=False)
     args = parser.parse_args()
-    logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
+    logging.basicConfig(
+        level=logging.DEBUG if args.verbose else logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+    )
 
     current_revision = get_current_revision(args.snap)
     logging.info(f"Current revision: {current_revision}")
