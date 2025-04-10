@@ -34,6 +34,7 @@ def process_revision(snap_name: str, revision: int) -> Tuple[str, str]:
     """
     Downloads the given revision of the snap and returns its kernel version and architecture.
     """
+    logging.info(f"Processing revision {revision}")
     with tempfile.TemporaryDirectory() as temp_dir:
         logging.debug(f"Getting revision {revision}")
         subprocess.run(
@@ -67,11 +68,13 @@ def process_revision(snap_name: str, revision: int) -> Tuple[str, str]:
 
 
 def main():
-    logging.basicConfig(level=logging.INFO)
     parser = argparse.ArgumentParser()
     parser.add_argument("--workers", type=int, default=os.cpu_count())
     parser.add_argument("--snap", type=str, default="pc-kernel")
+    parser.add_argument("--output", type=str, default="results.csv")
+    parser.add_argument("--verbose", type=bool, default=False)
     args = parser.parse_args()
+    logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
 
     current_revision = get_current_revision(args.snap)
     logging.info(f"Current revision: {current_revision}")
@@ -92,12 +95,12 @@ def main():
             except Exception as e:
                 logging.error(f"Error processing revision {rev}: {e}")
 
-    with open("results.csv", "w") as f:
+    with open(args.output, "w") as f:
         writer = csv.writer(f)
         writer.writerow(["revision", "version", "architecture"])
         for rev, (version, architecture) in sorted(results.items()):
             writer.writerow([rev, version, architecture])
-    logging.info("Done! Results saved to results.csv")
+    logging.info(f"Done! Results saved to {args.output}")
 
 
 if __name__ == "__main__":
