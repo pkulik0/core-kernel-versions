@@ -10,15 +10,14 @@ from typing import Tuple
 import yaml
 
 REVISION_REGEX = r"\d{4}-\d{2}-\d{2}\s+\((\d+)\)"
-SNAP_NAME = "pc-kernel"
 
 
-def get_current_revision() -> int:
+def get_current_revision(snap_name: str) -> int:
     """
     Get the current revision of the kernel snap.
     """
     result = subprocess.run(
-        ["snap", "info", SNAP_NAME], capture_output=True, text=True, check=True
+        ["snap", "info", snap_name], capture_output=True, text=True, check=True
     )
 
     revisions = []
@@ -29,14 +28,14 @@ def get_current_revision() -> int:
     return max(revisions)
 
 
-def process_revision(revision: int) -> Tuple[str, str]:
+def process_revision(snap_name: str, revision: int) -> Tuple[str, str]:
     """
     Downloads the given revision of the snap and returns its kernel version and architecture.
     """
+    print(f"Getting revision {revision}")
     with tempfile.TemporaryDirectory() as temp_dir:
-        print(f"Getting revision {revision}")
         subprocess.run(
-            ["snap", "download", SNAP_NAME, "--revision", str(revision)],
+            ["snap", "download", snap_name, "--revision", str(revision)],
             cwd=temp_dir,
             stdout=subprocess.DEVNULL,
             check=True,
@@ -45,14 +44,13 @@ def process_revision(revision: int) -> Tuple[str, str]:
         subprocess.run(
             [
                 "unsquashfs",
-                f"{SNAP_NAME}_{revision}.snap",
+                f"{snap_name}_{revision}.snap",
                 "meta/snap.yaml",
             ],
             cwd=temp_dir,
             stdout=subprocess.DEVNULL,
             check=True,
         )
-
         with open(
             os.path.join(temp_dir, "squashfs-root", "meta", "snap.yaml"), "r"
         ) as f:
@@ -67,9 +65,10 @@ def process_revision(revision: int) -> Tuple[str, str]:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--workers", type=int, default=os.cpu_count())
+    parser.add_argument("--snap", type=str, default="pc-kernel")
     args = parser.parse_args()
 
-    current_revision = get_current_revision()
+    current_revision = get_current_revision(args.snap)
     print(f"Current revision: {current_revision}")
 
     revisions = list(range(current_revision, 0, -1))
