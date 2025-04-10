@@ -22,9 +22,10 @@ jobs:
           sudo apt-get install -y xdelta3 squashfs-tools
       - run: pip install -r requirements.txt
       - run: python process.py
-      - id: get-date
+      - name: Get release date
+        id: get-date
         run: echo "RELEASE_DATE=$(date +%Y-%m-%d)" >> $GITHUB_ENV
-      - name: Release
+      - name: Create release
         uses: softprops/action-gh-release@v2
         with:
           name: "Release ${{ env.RELEASE_DATE }} (${{ github.ref_name }})"
