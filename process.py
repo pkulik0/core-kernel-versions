@@ -63,7 +63,7 @@ def process_revision(snap_name: str, revision: int) -> Tuple[str, str]:
     version = snap_yaml["version"]
     # Each revision supports only one architecture
     architecture = snap_yaml["architectures"][0]
-    logging.debug(f"Revision {revision} is version {version} for {architecture}")
+    logging.info(f"Revision {revision} is version {version} for {architecture}")
     return version, architecture
 
 
