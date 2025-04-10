@@ -72,7 +72,7 @@ def main():
     parser.add_argument("--workers", type=int, default=os.cpu_count())
     parser.add_argument("--snap", type=str, default="pc-kernel")
     parser.add_argument("--output", type=str, default="results.csv")
-    parser.add_argument("--verbose", type=bool, default=False)
+    parser.add_argument("--verbose", action="store_true", default=False)
     args = parser.parse_args()
     logging.basicConfig(
         level=logging.DEBUG if args.verbose else logging.INFO,
