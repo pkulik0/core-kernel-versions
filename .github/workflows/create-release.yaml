@@ -20,11 +20,18 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y xdelta3
       - run: pip install -r requirements.txt
       - run: python process.py
-      - name: Get release date
-        id: get-date
-        run: echo "RELEASE_DATE=$(date +%Y-%m-%d)" >> $GITHUB_ENV
-      - name: Create release
-        uses: softprops/action-gh-release@v2
+
+      - name: Set release variables
+        run: |
+          echo "RELEASE_DATE=$(date +%Y-%m-%d)" >> $GITHUB_ENV
+      - uses: rickstaa/action-create-tag@v1
+        with:
+          tag: release-${{ env.RELEASE_DATE }}
+          tag_exists_error: false
+          message: Release ${{ env.RELEASE_DATE }}
+      - uses: softprops/action-gh-release@v2
         with:
           name: "Release ${{ env.RELEASE_DATE }} (${{ github.ref_name }})"
           files: results.csv
+          body: Release ${{ env.RELEASE_DATE }}
+          tag_name: release-${{ env.RELEASE_DATE }}
