@@ -31,7 +31,7 @@ jobs:
           message: Release ${{ env.RELEASE_DATE }}
       - uses: softprops/action-gh-release@v2
         with:
-          name: "Release ${{ env.RELEASE_DATE }} (${{ github.ref_name }})"
+          name: "${{ env.RELEASE_DATE }}"
           files: results.csv
-          body: Release ${{ env.RELEASE_DATE }}
+          body: Created automatically via Github actions.
           tag_name: release-${{ env.RELEASE_DATE }}
