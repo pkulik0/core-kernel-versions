@@ -19,7 +19,7 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y xdelta3
       - run: pip install -r requirements.txt
-      - run: python process.py --workers 16
+      - run: python process.py --workers 8
 
       - name: Set release variables
         run: |
